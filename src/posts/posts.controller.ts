@@ -15,9 +15,9 @@ export class PostsController {
   @Get()
   getPost(): Post {
     return {
-      author: 'newJeans_official',
-      title: '뉴진스 민지',
-      content: '민지 얼굴',
+      author: 'author',
+      title: 'title',
+      content: 'content',
       likeCount: 11,
       commentCount: 22,
     };
