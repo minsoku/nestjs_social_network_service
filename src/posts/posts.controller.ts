@@ -1,4 +1,13 @@
-import { Controller, Get, NotFoundException, Param } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  NotFoundException,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { PostsService } from './posts.service';
 
 interface PostModel {
@@ -59,10 +68,60 @@ export class PostsController {
   }
   // 3) POST /posts
   //    POST를 생서한다.
+  @Post()
+  postPosts(
+    @Body('author') author: string,
+    @Body('title') title: string,
+    @Body('content') content: string,
+  ) {
+    const post: PostModel = {
+      id: posts[posts.length - 1].id + 1,
+      author,
+      title,
+      content,
+      likeCount: 0,
+      commentCount: 0,
+    };
+    posts = [...posts, post];
+    return post;
+  }
 
   // 4) PUT /posts/:id
   //    id에 해당되는 POST를 변경한다.
+  //    ?를 붙여서 부분 수정이 가능하게 만들음
+  @Put(':id')
+  putPost(
+    @Param('id') id: string,
+    @Body('author') author?: string,
+    @Body('title') title?: string,
+    @Body('content') content?: string,
+  ) {
+    const post = posts.find((post) => post.id === +id);
+
+    if (!post) {
+      throw new NotFoundException();
+    }
+    if (author) {
+      post.author = author;
+    }
+    if (title) {
+      post.title = title;
+    }
+    if (content) {
+      post.content = content;
+    }
+    posts = posts.map((prevPost) => (prevPost.id === +id ? post : prevPost));
+    return post;
+  }
 
   // 5) DELETE /posts/:id
   //    id에 해당되는 POST를 삭제한다.
+  @Delete(':id')
+  deletePost(@Param('id') id: string) {
+    posts = posts.filter((post) => post.id !== +id);
+    if (!posts) {
+      throw new NotFoundException();
+    }
+    return posts;
+  }
 }
