@@ -19,8 +19,31 @@ export class PostsService {
     });
   }
 
-  // 오름차순으로 정렬하는 pagination만 구현
   async paginatePosts(dto: PaginatePostDto) {
+    if (dto.page) {
+      return await this.pagePaginatePosts(dto);
+    } else {
+      return await this.cursorPaginatePosts(dto);
+    }
+  }
+
+  async pagePaginatePosts(dto: PaginatePostDto) {
+    /**
+     * data: Data[]
+     * total: number
+     */
+    const [posts, count] = await this.postsRepository.findAndCount({
+      skip: dto.take * (dto.page - 1),
+      order: {
+        createdAt: dto.order__createAt,
+      },
+      take: dto.take,
+    });
+
+    return { data: posts, total: count };
+  }
+
+  async cursorPaginatePosts(dto: PaginatePostDto) {
     const where: FindOptionsWhere<PostsModel> = {};
 
     if (dto.where__id_less_than) {
