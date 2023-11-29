@@ -5,7 +5,7 @@ export class PaginatePostDto {
   // 이 프로퍼티에 입력된 ID 보다 높은 ID부터 값을 가져오기
   @IsNumber()
   @IsOptional()
-  where__id_more_then?: number;
+  where__id_more_than?: number;
 
   // 정렬
   // createAt -> 생성된 시간 내림차/"오름차" 순으로 정렬
