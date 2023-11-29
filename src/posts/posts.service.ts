@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MoreThan, Repository } from 'typeorm';
+import { FindOptionsWhere, LessThan, MoreThan, Repository } from 'typeorm';
 import { PostsModel } from './entities/posts.entity';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
@@ -21,11 +21,17 @@ export class PostsService {
 
   // 오름차순으로 정렬하는 pagination만 구현
   async paginatePosts(dto: PaginatePostDto) {
-    // 1, 2, 3, 4, 5
+    const where: FindOptionsWhere<PostsModel> = {};
+
+    if (dto.where__id_less_than) {
+      where.id = LessThan(dto.where__id_less_than);
+    }
+    if (dto.where__id_more_than) {
+      where.id = MoreThan(dto.where__id_more_than);
+    }
+
     const posts = await this.postsRepository.find({
-      where: {
-        id: MoreThan(dto.where__id_more_than ?? 0),
-      },
+      where,
       order: {
         createdAt: dto.order__createAt,
       },
@@ -52,15 +58,21 @@ export class PostsService {
     if (lastItem) {
       for (const key of Object.keys(dto)) {
         if (dto[key]) {
-          if (key !== 'where__id_more_than') {
+          if (key !== 'where__id_more_than' && key !== 'where__id_less_than') {
             nextUrl.searchParams.append(key, dto[key]);
           }
         }
       }
-      nextUrl.searchParams.append(
-        'where__id_more_than',
-        lastItem.id.toString(),
-      );
+
+      let key = null;
+
+      if (dto.order__createAt === 'ASC') {
+        key = 'where__id_more_than';
+      } else {
+        key = 'where__id_less_than';
+      }
+
+      nextUrl.searchParams.append(key, lastItem.id.toString());
     }
     /**
      * Response
@@ -75,10 +87,10 @@ export class PostsService {
     return {
       data: posts,
       cursor: {
-        after: lastItem?.id,
+        after: lastItem?.id ?? null,
       },
       count: posts.length,
-      next: nextUrl?.toString(),
+      next: nextUrl?.toString() ?? null,
     };
   }
 

@@ -7,11 +7,15 @@ export class PaginatePostDto {
   @IsOptional()
   where__id_more_than?: number;
 
+  @IsNumber()
+  @IsOptional()
+  where__id_less_than?: number;
+
   // 정렬
   // createAt -> 생성된 시간 내림차/"오름차" 순으로 정렬
-  @IsIn(['ASC'])
+  @IsIn(['ASC', 'DESC'])
   @IsOptional()
-  order__createAt? = 'ASC' as const;
+  order__createAt?: 'ASC' | 'DESC' = 'ASC';
 
   // 몇 개의 데이터를 응답으로 받을 지
   @IsNumber()
