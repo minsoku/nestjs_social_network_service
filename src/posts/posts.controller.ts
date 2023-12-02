@@ -11,8 +11,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
-import { AccessTokenGuard } from 'src/auth/guard/bearer-token.guard';
-import { User } from 'src/users/decorator/user.decorator';
+import { AccessTokenGuard } from '../auth/guard/bearer-token.guard';
+import { User } from '../users/decorator/user.decorator';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PaginatePostDto } from './dto/paginate-post.dto';
