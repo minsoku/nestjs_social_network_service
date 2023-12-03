@@ -190,7 +190,7 @@ export class CommonService {
       // [where, 'id', 'more_than']
       const [_, field, operator] = split;
 
-      const values = value.toString().split(',');
+      // const values = value.toString().split(',');
 
       // if(operator === 'between') {
       //   operator[field] = FILTER_MAPPER[operator](values[0], values[1]);
