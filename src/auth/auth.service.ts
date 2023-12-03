@@ -204,9 +204,8 @@ export class AuthService {
   async registerWithEmail(user: RegisterUserDto) {
     const hash = await bcrypt.hash(
       user.password,
-      this.configService.get(ENV_HASH_ROUNDS_KEY),
+      parseInt(this.configService.get(ENV_HASH_ROUNDS_KEY)),
     );
-
     const newUser = await this.usersService.createUser({
       ...user,
       password: hash,
