@@ -1,10 +1,10 @@
 import { IsString } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { Column, Entity, ManyToOne } from 'typeorm';
+import { join } from 'path';
 import { BaseModel } from '../../common/entity/base.entity';
 import { stringValidationMessage } from '../../common/validation-message/string-validation.message';
 import { UsersModel } from '../../users/entities/users.entity';
-import { join } from 'path';
 import { POST_PUBLIC_IMAGE_PATH } from '../../common/const/path.const';
 
 @Entity()
