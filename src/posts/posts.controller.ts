@@ -10,19 +10,21 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { DataSource } from 'typeorm';
 import { PostsService } from './posts.service';
+import { PostsImagesService } from './image/images.service';
 import { AccessTokenGuard } from '../auth/guard/bearer-token.guard';
 import { User } from '../users/decorator/user.decorator';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PaginatePostDto } from './dto/paginate-post.dto';
 import { ImageModelType } from '../common/entity/image.entity';
-import { DataSource } from 'typeorm';
 
 @Controller('posts')
 export class PostsController {
   constructor(
     private readonly postsService: PostsService,
+    private readonly PostsImagesService: PostsImagesService,
     private readonly dataSource: DataSource,
   ) {}
   // 1) GET /posts
@@ -55,15 +57,17 @@ export class PostsController {
 
     // 로직 실행
     try {
-      const post = await this.postsService.createPost(userId, body);
-
+      const post = await this.postsService.createPost(userId, body, qr);
       for (let i = 0; i < body.images.length; i++) {
-        await this.postsService.createPostImage({
-          post,
-          order: i,
-          path: body.images[i],
-          type: ImageModelType.POST_IMAGE,
-        });
+        await this.PostsImagesService.createPostImage(
+          {
+            post,
+            order: i,
+            path: body.images[i],
+            type: ImageModelType.POST_IMAGE,
+          },
+          qr,
+        );
 
         await qr.commitTransaction();
         await qr.release();

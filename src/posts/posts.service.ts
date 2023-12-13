@@ -5,23 +5,15 @@ import {
   QueryRunner,
   Repository,
 } from 'typeorm';
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
-import { basename, join } from 'path';
-import { promises } from 'fs';
 import { PostsModel } from './entities/posts.entity';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PaginatePostDto } from './dto/paginate-post.dto';
 import { CommonService } from '../common/common.service';
 import { ENV_HOST_KEY, ENV_PROTOCOL_KEY } from '../common/const/env-keys.const';
-import { POST_IMAGE_PATH, TEMP_FOLDER_PATH } from '../common/const/path.const';
-import { CreatePostImageDto } from './image/dto/create-image.dto';
 import { ImageModel } from '../common/entity/image.entity';
 import { DEFAULT_POST_FIND_OPTIONS } from './const/default-post-find-options.const';
 
@@ -31,7 +23,7 @@ export class PostsService {
     @InjectRepository(PostsModel)
     private readonly postsRepository: Repository<PostsModel>,
     @InjectRepository(ImageModel)
-    private readonly imageRepogitory: Repository<ImageModel>,
+    private readonly imageRepository: Repository<ImageModel>,
     private readonly commonService: CommonService,
     private readonly configService: ConfigService,
   ) {}
@@ -196,37 +188,6 @@ export class PostsService {
     });
     const newPost = await repository.save(post);
     return newPost;
-  }
-
-  async createPostImage(dto: CreatePostImageDto) {
-    // dto의 이미지 이름을 기반으로
-    // 파일의 경로를 생성한다
-    const tempFilePath = join(TEMP_FOLDER_PATH, dto.path);
-
-    try {
-      // file이 존재하는지 확인
-      // 만약에 존재하지 않는다면 에러를 던짐
-      await promises.access(tempFilePath);
-    } catch (error) {
-      throw new BadRequestException('존재하지 않는 파일입니다.');
-    }
-
-    // 파일 이름만 가져오기
-    const fileName = basename(tempFilePath);
-
-    // 새로 이동할 post 폴더의 경로 + 이미지 이름
-    // /posts/asdf.jpg
-    const newPath = join(POST_IMAGE_PATH, fileName);
-
-    // save
-    const result = await this.imageRepogitory.save({
-      ...dto,
-    });
-
-    // 파일 옮기기
-    await promises.rename(tempFilePath, newPath);
-
-    return result;
   }
 
   async updatePost(postId: number, postDto: UpdatePostDto) {
