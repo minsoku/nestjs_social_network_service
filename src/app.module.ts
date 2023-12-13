@@ -19,6 +19,7 @@ import {
   ENV_DB_USERNAME_KEY,
 } from './common/const/env-keys.const';
 import { PUBLIC_FOLDER_PATH } from './common/const/path.const';
+import { ImageModel } from './common/entity/image.entity';
 
 @Module({
   imports: [
@@ -40,7 +41,7 @@ import { PUBLIC_FOLDER_PATH } from './common/const/path.const';
       password: process.env[ENV_DB_PASSWORD_KEY],
       database: process.env[ENV_DB_DATABASE_KEY],
       // 생성할 모델, 데이터베이스와 연동할 모델
-      entities: [PostsModel, UsersModel],
+      entities: [PostsModel, UsersModel, ImageModel],
       synchronize: true,
     }),
     UsersModule,
