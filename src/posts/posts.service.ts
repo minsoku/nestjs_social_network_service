@@ -1,4 +1,10 @@
-import { FindOptionsWhere, LessThan, MoreThan, Repository } from 'typeorm';
+import {
+  FindOptionsWhere,
+  LessThan,
+  MoreThan,
+  QueryRunner,
+  Repository,
+} from 'typeorm';
 import {
   BadRequestException,
   Injectable,
@@ -170,8 +176,16 @@ export class PostsService {
     return post;
   }
 
-  async createPost(authorId: number, postDto: CreatePostDto) {
-    const post = this.postsRepository.create({
+  getRepository(qr?: QueryRunner) {
+    return qr
+      ? qr.manager.getRepository<PostsModel>(PostsModel)
+      : this.postsRepository;
+  }
+
+  async createPost(authorId: number, postDto: CreatePostDto, qr?: QueryRunner) {
+    const repository = this.getRepository(qr);
+
+    const post = repository.create({
       author: {
         id: authorId,
       },
@@ -180,7 +194,7 @@ export class PostsService {
       likeCount: 0,
       commentCount: 0,
     });
-    const newPost = await this.postsRepository.save(post);
+    const newPost = await repository.save(post);
     return newPost;
   }
 
