@@ -23,7 +23,7 @@ import { AuthService } from '../auth.service';
 
 @Injectable()
 export class BasicTokenGuard implements CanActivate {
-  constructor(private readonly authServicec: AuthService) {}
+  constructor(private readonly authService: AuthService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest();
@@ -36,11 +36,11 @@ export class BasicTokenGuard implements CanActivate {
       throw new UnauthorizedException('토큰이 없습니다 !');
     }
 
-    const token = this.authServicec.extractTokenFromHeader(rawToken, false);
+    const token = this.authService.extractTokenFromHeader(rawToken, false);
 
-    const { email, password } = this.authServicec.decodeBasicToken(token);
+    const { email, password } = this.authService.decodeBasicToken(token);
 
-    const user = await this.authServicec.authenticateWithEmailAndPassword({
+    const user = await this.authService.authenticateWithEmailAndPassword({
       email,
       password,
     });
