@@ -11,7 +11,7 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "paths": {
-      "@app/*": ["app/*"],
+      "@app/*": ["src  /*"],
       "@config/*": ["app/_config/*"],
       "@environment/*": ["environments/*"],
       "@shared/*": ["app/_shared/*"],

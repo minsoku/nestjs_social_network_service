@@ -1,22 +1,35 @@
-import { Module } from '@nestjs/common';
+import {
+    MiddlewareConsumer,
+    Module,
+    NestModule,
+    RequestMethod,
+} from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PostsService } from './posts.service';
 import { PostsController } from './posts.controller';
 import { PostsModel } from './entities/posts.entity';
-import { AuthModule } from '../auth/auth.module';
-import { UsersModule } from '../users/users.module';
-import { CommonModule } from '../common/common.module';
-import { ImageModel } from '../common/entity/image.entity';
+import { AuthModule } from 'src/auth/auth.module';
+import { UsersModule } from 'src/users/users.module';
+import { CommonModule } from 'src/common/common.module';
+import { ImageModel } from 'src/common/entity/image.entity';
 import { PostsImagesService } from './image/images.service';
+import { LogMiddleWare } from 'src/common/middleware/log.middleware';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([PostsModel, ImageModel]),
-    AuthModule,
-    UsersModule,
-    CommonModule,
-  ],
-  controllers: [PostsController],
-  providers: [PostsService, PostsImagesService],
+    imports: [
+        TypeOrmModule.forFeature([PostsModel, ImageModel]),
+        AuthModule,
+        UsersModule,
+        CommonModule,
+    ],
+    controllers: [PostsController],
+    providers: [PostsService, PostsImagesService],
 })
-export class PostsModule {}
+export class PostsModule implements NestModule {
+    configure(consumer: MiddlewareConsumer) {
+        consumer.apply(LogMiddleWare).forRoutes({
+            path: 'posts*',
+            method: RequestMethod.GET,
+        });
+    }
+}
