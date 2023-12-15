@@ -6,7 +6,6 @@ export class LogMiddleWare implements NestMiddleware {
         console.log(
             `[REQ] ${req.url} ${req.method} ${new Date().toLocaleString('kr')}`,
         );
-
         next();
     }
 }
