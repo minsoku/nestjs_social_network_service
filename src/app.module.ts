@@ -22,6 +22,7 @@ import { PUBLIC_FOLDER_PATH } from './common/const/path.const';
 import { ImageModel } from './common/entity/image.entity';
 import { ChatsModule } from './chats/chats.module';
 import { ChatsModel } from 'src/chats/entity/chats.entity';
+import { MessagesModel } from 'src/chats/messages/entity/messages.entity';
 
 @Module({
     imports: [
@@ -43,7 +44,13 @@ import { ChatsModel } from 'src/chats/entity/chats.entity';
             password: process.env[ENV_DB_PASSWORD_KEY],
             database: process.env[ENV_DB_DATABASE_KEY],
             // 생성할 모델, 데이터베이스와 연동할 모델
-            entities: [PostsModel, UsersModel, ImageModel, ChatsModel],
+            entities: [
+                PostsModel,
+                UsersModel,
+                ImageModel,
+                ChatsModel,
+                MessagesModel,
+            ],
             synchronize: true,
         }),
         UsersModule,

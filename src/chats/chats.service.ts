@@ -3,13 +3,29 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ChatsModel } from 'src/chats/entity/chats.entity';
 import { Repository } from 'typeorm';
 import { CreateChatDto } from 'src/chats/dto/create-chat.dto';
+import { CommonService } from 'src/common/common.service';
+import { PaginateChatDto } from 'src/chats/dto/paginate-chat.dto';
 
 @Injectable()
 export class ChatsService {
     constructor(
         @InjectRepository(ChatsModel)
         private readonly chatsRepository: Repository<ChatsModel>,
+        private readonly commonService: CommonService,
     ) {}
+
+    paginateChats(dto: PaginateChatDto) {
+        return this.commonService.paginate(
+            dto,
+            this.chatsRepository,
+            {
+                relations: {
+                    users: true,
+                },
+            },
+            'chats',
+        );
+    }
 
     async createChat(dto: CreateChatDto) {
         const chat = await this.chatsRepository.save({
@@ -23,5 +39,14 @@ export class ChatsService {
                 id: chat.id,
             },
         });
+    }
+
+    async checkIfChatExists(chatId: number) {
+        const exists = await this.chatsRepository.exist({
+            where: {
+                id: chatId,
+            },
+        });
+        return exists;
     }
 }

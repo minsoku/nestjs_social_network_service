@@ -8,6 +8,7 @@ import { emailValidationMessage } from 'src/common/validation-message/email-vali
 import { RolesEnum } from 'src/users/const/roles.const';
 import { PostsModel } from 'src/posts/entities/posts.entity';
 import { ChatsModel } from 'src/chats/entity/chats.entity';
+import { MessagesModel } from 'src/chats/messages/entity/messages.entity';
 
 @Entity()
 export class UsersModel extends BaseModel {
@@ -72,4 +73,7 @@ export class UsersModel extends BaseModel {
     @ManyToMany(() => ChatsModel, (chat) => chat.users)
     @JoinTable()
     chats: ChatsModel[];
+
+    @OneToMany(() => MessagesModel, (message) => message.author)
+    messages: MessagesModel;
 }

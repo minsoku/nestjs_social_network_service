@@ -5,17 +5,24 @@ import {
     SubscribeMessage,
     WebSocketGateway,
     WebSocketServer,
+    WsException,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { CreateChatDto } from 'src/chats/dto/create-chat.dto';
 import { ChatsService } from 'src/chats/chats.service';
+import { EnterChatDto } from 'src/chats/dto/enter-chat.dto';
+import { CreateMessagesDto } from 'src/chats/messages/dto/create-messages.dto';
+import { ChatsMessageService } from 'src/chats/messages/messages.service';
 
 @WebSocketGateway({
     // ws://localhost:3000/chats
     namespace: 'chats',
 })
 export class ChatsGateway implements OnGatewayConnection {
-    constructor(private readonly chatsService: ChatsService) {}
+    constructor(
+        private readonly chatsService: ChatsService,
+        private readonly messageService: ChatsMessageService,
+    ) {}
 
     @WebSocketServer()
     server: Server;
@@ -33,33 +40,45 @@ export class ChatsGateway implements OnGatewayConnection {
     }
 
     @SubscribeMessage('enter_chat')
-    enterChat(
+    async enterChat(
         // 방의 chat ID 들을 리스트로 받는다.
         @MessageBody()
-        data: number[],
+        data: EnterChatDto,
         @ConnectedSocket()
         socket: Socket,
     ) {
-        for (const chatId of data) {
-            socket.join(chatId.toString());
+        for (const chatid of data.chatIds) {
+            const exists = await this.chatsService.checkIfChatExists(chatid);
+
+            if (!exists) {
+                throw new WsException({
+                    code: 100,
+                    message: `존재하지 않는 chat 입니다. chatid: ${chatid}`,
+                });
+            }
         }
+        socket.join(data.chatIds.map((x) => x.toString()));
     }
 
     @SubscribeMessage('send_message')
-    sendMesssage(
-        @MessageBody()
-        message: {
-            message: string;
-            chatId: number;
-        },
+    async sendMesssage(
+        @MessageBody() dto: CreateMessagesDto,
         @ConnectedSocket()
         socket: Socket,
     ) {
+        const chatExists = await this.chatsService.checkIfChatExists(
+            dto.chatId,
+        );
+        if (!chatExists) {
+            throw new WsException(
+                `존재하지 않는 채팅방입니다. Chat ID : ${dto.chatId}`,
+            );
+        }
+
+        const message = await this.messageService.createMessage(dto);
+
         socket
-            .to(message.chatId.toString())
-            .emit('receive_message', message.message);
-        // this.server
-        //     .in(message.chatId.toString())
-        //     .emit('receive_message', message.message);
+            .to(message.chat.id.toString())
+            .emit('receive_message', dto.message);
     }
 }
