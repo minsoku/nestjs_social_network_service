@@ -55,7 +55,6 @@ export class AuthService {
         // 'Bearer {token}'
         // [Bearer, {token}]
         const splitToken = header.split(' ');
-
         const prefix = isBearer ? 'Bearer' : 'Basic';
 
         if (splitToken.length !== 2 || splitToken[0] !== prefix) {
@@ -63,7 +62,6 @@ export class AuthService {
         }
 
         const token = splitToken[1];
-
         return token;
     }
 
@@ -179,7 +177,6 @@ export class AuthService {
          *    3. 모두 통과되면 찾은 사용자 정보 반환
          */
         const existingUser = await this.usersService.getUserByEmail(user.email);
-        console.log(existingUser);
 
         if (!existingUser) {
             throw new UnauthorizedException('존재하지 않는 사용자입니다.');
